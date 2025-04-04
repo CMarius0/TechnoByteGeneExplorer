@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class APICalls {
-    public static String request(String parameter) throws MalformedURLException {
+    public static ArrayList<String> request(String parameter) throws MalformedURLException {
         try {
             URL url = new URL("https://rest.kegg.jp/" + parameter);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -32,7 +32,7 @@ public class APICalls {
                 n--;
             }
             reader.close();
-            return response.toString();
+            return response;
         }
         catch (Exception e) {
             e.printStackTrace();
