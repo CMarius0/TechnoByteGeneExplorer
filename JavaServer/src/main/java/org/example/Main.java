@@ -1,7 +1,12 @@
 package org.example;
 
+import org.json.JSONArray;
+
 import java.net.MalformedURLException;
 import java.util.List;
+
+import static org.example.APICalls.getDiseasesByGeneId;
+
 
 public class Main {
     public static void main(String[] args) {
@@ -18,5 +23,14 @@ public class Main {
             for (var x: lista2)
                 System.out.println(x);
          */
+
+        /*
+        try {
+            List<String> diseases = getDiseasesByGeneId("7157"); // TP53
+            System.out.println("Diseases linked to gene 7157 (TP53):");
+            diseases.forEach(System.out::println);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } */
     }
 }

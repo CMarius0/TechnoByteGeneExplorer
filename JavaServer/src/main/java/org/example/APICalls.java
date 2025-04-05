@@ -1,5 +1,6 @@
 package org.example;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
@@ -8,8 +9,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
 
 public class APICalls {
+    private static final String BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
+    private static final String TOOL_PARAM = "&tool=GeneExplorer";
+    private static final String EMAIL_PARAM = "&email=raulcostea434@yahoo.com";
+
     public static ArrayList<String> request(String parameter) {
         try {
             URL url = new URL("https://rest.kegg.jp/" + parameter);
@@ -74,18 +80,6 @@ public class APICalls {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             JSONObject jsonObject = new JSONObject(reader.readLine());
             JSONObject test = jsonObject.getJSONObject("result").getJSONObject(id.toString());
-
-            Set<String> keysToKeep = Set.of("name", "summary", "chromosome", "otherdesignations", "otheraliases");
-            Set<String> keysToRemove = new HashSet<>();
-            for (String key : test.keySet()) {
-                if (!keysToKeep.contains(key)) {
-                    keysToRemove.add(key);
-                }
-            }
-            // Remove unwanted keys
-            for (String key : keysToRemove) {
-                test.remove(key);
-            }
             return test;
         } catch (Exception e) {
             e.printStackTrace();
