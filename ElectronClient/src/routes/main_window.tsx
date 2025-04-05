@@ -6,7 +6,7 @@ import $ from 'jquery'
 
 function call() {
     $.ajax({
-        url: "https://localhost:1080",
+        url: "http://localhost:1080",
         data:{
           key: "test"
         },

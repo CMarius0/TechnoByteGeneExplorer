@@ -9,7 +9,7 @@ export default function Root() {
             img-src data: https: http:;
             script-src 'self' 'unsafe-inline';
             style-src 'self' 'unsafe-inline';
-            connect-src 'self' https://localhost:1080;"/>
+            connect-src 'self' http://localhost:1080;"/>
         </head>
         <BrowserRouter>
             <Routes>
