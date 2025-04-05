@@ -236,7 +236,7 @@ public class APICalls {
 
     public static String extractNtseqFromKeggGene(String geneKeggId) throws Exception {
         APICalls api = new APICalls();
-        HttpURLConnection con = api.getConnection("https://rest.kegg.jp/get/\" + geneKeggId");
+        HttpURLConnection con = api.getConnection("https://rest.kegg.jp/get/" + geneKeggId);
 
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String line;
@@ -250,7 +250,7 @@ public class APICalls {
             }
             if (inSeq) {
                 if (line.startsWith("///")) break;
-                seq.append(line);
+                seq.append(line.trim());
             }
         }
         in.close();
