@@ -1,11 +1,16 @@
 package org.example;
 
 import fi.iki.elonen.NanoHTTPD;
+import org.example.APICallers.KeggAPICaller;
+import org.example.APICallers.NcbiAPICaller;
 import org.json.JSONObject;
 
 import java.io.*;
 
 public class Server extends NanoHTTPD {
+
+    NcbiAPICaller ncbiAPICaller = new NcbiAPICaller("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/");
+    KeggAPICaller keggAPICaller = new KeggAPICaller("https://rest.kegg.jp/");
 
     public Server() throws IOException {
         super(1080);
@@ -19,7 +24,12 @@ public class Server extends NanoHTTPD {
         Response res;
         switch (type) {
             case "GetGene":
-                var x = APICalls.getGeneInfoFromID(APICalls.getGeneIdFromSymbol(session.getParms().get("gene")));
+                JSONObject x;
+                try {
+                    x = ncbiAPICaller.getGeneInfoFromID(ncbiAPICaller.getGeneIdFromSymbol(session.getParms().get("gene")));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 if (x==null){
                     JSONObject obj = new JSONObject();
                     obj.put("Error", "No matching Gene Name");
@@ -36,7 +46,6 @@ public class Server extends NanoHTTPD {
         res.addHeader("Access-Control-Allow-Origin", "*");
         res.addHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         res.addHeader("Access-Control-Allow-Headers", "Content-Type");
-
         return res;
     }
 
