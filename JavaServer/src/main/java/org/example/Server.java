@@ -1,17 +1,8 @@
 package org.example;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 import fi.iki.elonen.NanoHTTPD;
-import org.json.JSONObject;
 
 import java.io.*;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Server extends NanoHTTPD {
 
@@ -25,7 +16,7 @@ public class Server extends NanoHTTPD {
     public Response serve(IHTTPSession session) {
         String key = session.getParms().get("key");
         Response res = newFixedLengthResponse(APICalls.getGeneInfoFromID(APICalls.getGeneIdFromSymbol("TP53")).toString());
-        res.addHeader("Access-Control-Allow-Origin", "*"); // 💥 This is what fixes it!
+        res.addHeader("Access-Control-Allow-Origin", "*");
         res.addHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         res.addHeader("Access-Control-Allow-Headers", "Content-Type");
 
