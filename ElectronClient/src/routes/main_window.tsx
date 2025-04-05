@@ -1,10 +1,12 @@
-import { AppBar, Box, Button, colors, List, ListItem, ListItemText, TextField, Typography,  } from "@mui/material";
+import { AppBar, Box, Button, capitalize, colors, List, ListItem, ListItemText, TextField, Typography,  } from "@mui/material";
 import { ReactNode, useState } from "react";
 import $   from 'jquery';
 
 
 export default function MainWindow() {
     const [data, setData] = useState({name:"" ,summary:"",description:"",diseases:[""]});
+
+    const [drugs, setDrugs] = useState([{}])
     if(data.name=="")
       setData(JSON.parse('{"summary":"This gene encodes a tumor suppressor protein containing transcriptional activation, DNA binding, and oligomerization domains","description":"tumor protein p53","diseases":["BONE MARROW FAILURE SYNDROME 5; BMFS5","BASAL CELL CARCINOMA, SUSCEPTIBILITY TO, 7; BCC7","NASOPHARYNGEAL CARCINOMA","PAPILLOMA OF CHOROID PLEXUS; CPP","PANCREATIC CANCER","OSTEOGENIC SARCOMA","ADRENOCORTICAL CARCINOMA, HEREDITARY; ADCC","TUMOR PROTEIN p53; TP53","LI-FRAUMENI SYNDROME; LFS","GLIOMA SUSCEPTIBILITY 1; GLM1"],"name":"TP53"}'))
     // console.log('test' + data.diseases)
@@ -21,9 +23,14 @@ export default function MainWindow() {
     
     return (
       <>
-        <Box sx={{margin:"10px",backgroundColor:colors.grey[300], justifyContent:"left", display:"flex", flexDirection:"row", alignContent:"center"}}>
-            <TextField label="Gene" variant="outlined" id='searchTextField' />
-            <Button variant="outlined"
+        <Box sx={{margin:"10px",backgroundColor:colors.grey[300], justifyContent:"left", display:"flex", flexDirection:"row", alignContent:"center", borderRadius:"20px"}}>
+            <TextField label="Gene" variant="filled" id='searchTextField' sx={{marginLeft:"30px", backgroundColor:"transparent", borderRadius:"20px"}}
+            onKeyUp={(event) => {
+              if (event.keyCode === 13){
+                (document.getElementById("button")).click()
+              }
+            }}  />
+            <Button id="button" variant="outlined" sx={{margin:"5px", border:"1px solid black"}}
               onClick={() => {
               $.ajax({
                 url: "http://localhost:1080",
@@ -50,13 +57,13 @@ export default function MainWindow() {
                 {data.name}
               </Typography>
               
-              <Typography variant="h6">
+              <Typography variant="h6" sx={{textTransform:"capitalize"}}>
                 {data.description}
               </Typography>
-              <Typography variant="body2" sx={{marginTop:"10px", marginBottom:"10px"}}>
+              <Typography variant="body1" sx={{marginTop:"10px", marginBottom:"15px", fontStyle:"italic"}}>
                 {data.summary}
               </Typography> 
-              <Typography variant="h6" sx={{fontWeight:"bold"}}>
+              <Typography variant="h6" sx={{fontWeight:"bold", textDecoration:"underline", textDecorationThickness:"2px"}}>
                 Diseases:
               </Typography>
               <List>
@@ -64,10 +71,12 @@ export default function MainWindow() {
               </List>
             </div>
           </Box>
-          <Box sx={{flexGrow:2, margin:"25px"}}>
+          <Box sx={{flexGrow:2, margin:"25px", backgroundColor:colors.grey[300], borderRadius:"25px", padding:"20px"}}>
+            <Typography>
               test
+            </Typography>
           </Box>
-          <Box sx={{flexGrow:1, margin:"25px"}}>
+          <Box sx={{flexGrow:1, margin:"25px", backgroundColor:colors.grey[300], borderRadius:"25px", padding:"20px"}}>
               test
           </Box>
         </Box>
