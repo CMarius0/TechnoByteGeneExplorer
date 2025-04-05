@@ -205,4 +205,60 @@ public class APICalls {
             return null;
         }
     }
+
+    public static List<String> extractGenesFromPathway(String pathwayId) throws Exception {
+        List<String> geneSymbols = new ArrayList<>();
+
+        String urlStr = "https://rest.kegg.jp/get/" + pathwayId + "/kgml";
+        URL url = new URL(urlStr);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+
+        InputStream stream = con.getInputStream();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(stream);
+        doc.getDocumentElement().normalize();
+
+        NodeList entries = doc.getElementsByTagName("entry");
+        for (int i = 0; i < entries.getLength(); i++) {
+            Element entry = (Element) entries.item(i);
+            if (!"gene".equals(entry.getAttribute("type"))) continue;
+
+            NodeList graphicsList = entry.getElementsByTagName("graphics");
+            if (graphicsList.getLength() > 0) {
+                Element graphics = (Element) graphicsList.item(0);
+                String geneName = graphics.getAttribute("name");
+                if (!geneName.isEmpty()) geneSymbols.add(geneName);
+            }
+        }
+
+        return geneSymbols;
+    }
+
+    public static String extractNtseqFromKeggGene(String geneKeggId) throws Exception {
+        String urlStr = "https://rest.kegg.jp/get/" + geneKeggId;
+        URL url = new URL(urlStr);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String line;
+        boolean inSeq = false;
+        StringBuilder seq = new StringBuilder();
+
+        while ((line = in.readLine()) != null) {
+            if (line.startsWith("NTSEQ")) {
+                inSeq = true;
+                continue;
+            }
+            if (inSeq) {
+                if (line.startsWith("///")) break;
+                seq.append(line);
+            }
+        }
+        in.close();
+        return seq.length() > 0 ? seq.toString() : null;
+    }
+
 }
