@@ -1,9 +1,12 @@
 package org.example.APICallers;
 
+import org.example.GeneEmbeddingAPI;
+import org.example.GeneInteraction;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +14,7 @@ import java.util.List;
 public class Service {
     NcbiAPICaller ncbiAPICaller = new NcbiAPICaller("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/");
     KeggAPICaller keggAPICaller = new KeggAPICaller("https://rest.kegg.jp/");
+    GeneEmbeddingAPI geneEmbeddingAPI = new GeneEmbeddingAPI(keggAPICaller);
 
     public String getGene(String name) {
         JSONObject x;
@@ -41,9 +45,7 @@ public class Service {
                         gene.add(obj);
                     }
                 }
-                catch (FileNotFoundException e){
-                    continue;
-                }
+                catch (FileNotFoundException _){}
             }
             return gene;
         } catch (Exception e) {
@@ -51,5 +53,28 @@ public class Service {
         }
     }
 
-
+    public JSONArray getDrugsForSimilarGenes(String geneName) {
+        try {
+            ArrayList<String> names = new ArrayList<>();;
+            ArrayList<String> pathwayIDs = keggAPICaller.getPathwaysFromID(ncbiAPICaller.getGeneIdFromSymbol(geneName));
+            for(var pathway : pathwayIDs){
+                List<GeneInteraction> interactions = geneEmbeddingAPI.buildKeggBasedInteractions(pathway);
+                geneEmbeddingAPI.loadInteractions(interactions,10);
+                List<String> genes = keggAPICaller.extractGenesFromPathway(pathway);
+                for (var gene : genes) {
+                    JSONObject obj = new JSONObject(ncbiAPICaller.getGeneInfoFromID(Integer.parseInt(gene.replace("hsa0",""))).toString());
+                    if(geneEmbeddingAPI.similarity(geneName,obj.getString("name")) > 0.5)
+                        names.add(gene);
+                }
+            }
+            JSONArray array = new JSONArray();
+            List<JSONObject> drugs = getAssociatedDrugs(names);
+            for(JSONObject obj : drugs){
+                array.put(obj);
+            }
+            return array;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

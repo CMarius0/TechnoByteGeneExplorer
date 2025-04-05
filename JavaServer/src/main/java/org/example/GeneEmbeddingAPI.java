@@ -5,7 +5,7 @@ import org.example.APICallers.KeggAPICaller;
 import java.util.*;
 
 
-class GeneEmbeddingAPI {
+public class GeneEmbeddingAPI {
     private final InteractionGraphBuilder graphBuilder = new InteractionGraphBuilder();
     private final EmbeddingService embeddingService = new EmbeddingService();
     private final Map<String, GeneEmbedding> embeddingMap = new HashMap<>();
