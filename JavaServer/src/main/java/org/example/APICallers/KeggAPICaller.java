@@ -54,7 +54,6 @@ public class KeggAPICaller extends AbstractAPICaller{
                 System.out.println(inputLine);
                 n--;
             }
-
             return response;
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -111,4 +110,23 @@ public class KeggAPICaller extends AbstractAPICaller{
         return !seq.isEmpty() ? seq.toString() : null;
     }
 
+    public List<String> extractDrugTarget(String geneId) throws Exception {
+        HttpURLConnection con = getConnection("get/hsa:" + geneId);
+        ArrayList<String> drugs = new ArrayList<>();
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String line;
+        boolean inSeq = false;
+
+        while ((line = in.readLine()) != null) {
+            if (line.startsWith("DRUG_TARGET")) {
+                inSeq = true;
+            }
+            if (inSeq) {
+                if (line.startsWith("BRITE")) break;
+                drugs.add(line.trim().replaceAll("DRUG_TARGET ",""));
+            }
+        }
+        in.close();
+        return !drugs.isEmpty() ? drugs : null;
+    }
 }

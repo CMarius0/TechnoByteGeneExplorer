@@ -1,19 +1,17 @@
 package org.example;
 
 import fi.iki.elonen.NanoHTTPD;
-import org.example.APICallers.KeggAPICaller;
-import org.example.APICallers.NcbiAPICaller;
+import org.example.APICallers.Service;
 import org.json.JSONObject;
 
 import java.io.*;
 
 public class Server extends NanoHTTPD {
 
-    NcbiAPICaller ncbiAPICaller = new NcbiAPICaller("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/");
-    KeggAPICaller keggAPICaller = new KeggAPICaller("https://rest.kegg.jp/");
-
+    private final Service service;
     public Server() throws IOException {
         super(1080);
+        service = new Service();
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         System.out.println("Server started");
     }
@@ -24,19 +22,7 @@ public class Server extends NanoHTTPD {
         Response res;
         switch (type) {
             case "GetGene":
-                JSONObject x;
-                try {
-                    x = ncbiAPICaller.getGeneInfoFromID(ncbiAPICaller.getGeneIdFromSymbol(session.getParms().get("gene")));
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                if (x==null){
-                    JSONObject obj = new JSONObject();
-                    obj.put("Error", "No matching Gene Name");
-                    res = newFixedLengthResponse(obj.toString());
-                    break;
-                }
-                res = newFixedLengthResponse(x.toString());
+                res = newFixedLengthResponse(service.getGene(session.getParms().get("gene")));
                 break;
             default:
                 JSONObject obj = new JSONObject();
