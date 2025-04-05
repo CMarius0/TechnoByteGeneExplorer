@@ -188,4 +188,33 @@ public class APICalls {
             return null;
         }
     }
+
+    public static ArrayList<String> getDrugs() {
+        try {
+            URL url = new URL("https://rest.kegg.jp/list/drug");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Content-Language", "en-US");
+            conn.setUseCaches(false);
+            conn.setDoOutput(true);
+            conn.connect();
+
+            InputStream is = conn.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            ArrayList<String> response = new ArrayList<>();
+            String inputLine;
+            int n = 100;
+            while ((inputLine = reader.readLine()) != null & n!=0)
+            {
+                System.out.println(inputLine);
+                n--;
+            }
+
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
