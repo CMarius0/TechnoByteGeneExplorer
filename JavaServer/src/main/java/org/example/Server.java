@@ -1,6 +1,7 @@
 package org.example;
 
 import fi.iki.elonen.NanoHTTPD;
+import org.json.JSONObject;
 
 import java.io.*;
 
@@ -14,8 +15,17 @@ public class Server extends NanoHTTPD {
 
     @Override
     public Response serve(IHTTPSession session) {
-        String key = session.getParms().get("key");
-        Response res = newFixedLengthResponse(APICalls.getGeneInfoFromID(APICalls.getGeneIdFromSymbol("TP53")).toString());
+        String type = session.getParms().get("type");
+        Response res;
+        switch (type) {
+            case "GetGene":
+                res = newFixedLengthResponse(APICalls.getGeneInfoFromID(APICalls.getGeneIdFromSymbol(session.getParms().get("gene"))).toString());
+                break;
+            default:
+                JSONObject obj = new JSONObject();
+                obj.put("Error", "Error");
+                res = newFixedLengthResponse(obj.toString());
+        }
         res.addHeader("Access-Control-Allow-Origin", "*");
         res.addHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         res.addHeader("Access-Control-Allow-Headers", "Content-Type");
