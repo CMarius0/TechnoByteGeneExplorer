@@ -14,13 +14,13 @@ public class Server {
         System.out.println("Listening");
         try(ServerSocket server = new ServerSocket(1080)) {
             Socket s = server.accept();
+
             BufferedReader bis = new BufferedReader(new InputStreamReader(s.getInputStream()));
             BufferedOutputStream bos = new BufferedOutputStream(s.getOutputStream());
 
-            System.out.println("Connected");
-            JSONObject obj = new JSONObject(bis.read());
-
-            if (obj.get("key") == "test") {
+            System.out.println("Connected"+ bis.readLine());
+            JSONObject obj = new JSONObject(bis.readLine());
+            if ( obj.has("key") && obj.get("key") == "test") {
                 JSONObject send = new JSONObject();
                 send.append("test","hielau");
                 bos.write(obj.toString().getBytes());
