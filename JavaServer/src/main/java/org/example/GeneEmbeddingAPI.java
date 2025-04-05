@@ -1,13 +1,9 @@
 package org.example;
 
-<<<<<<< Updated upstream
 import org.example.APICallers.KeggAPICaller;
 
 import java.util.*;
 
-=======
-import java.util.*;
->>>>>>> Stashed changes
 
 class GeneEmbeddingAPI {
     private final InteractionGraphBuilder graphBuilder = new InteractionGraphBuilder();
@@ -45,13 +41,8 @@ class GeneEmbeddingAPI {
     }
 
     // --- Build GeneInteractions from KEGG Pathway using APICalls ---
-<<<<<<< Updated upstream
     public List<GeneInteraction> buildKeggBasedInteractions(String pathwayId) throws Exception {
         List<String> rawGenes = geneCaller.extractGenesFromPathway(pathwayId);
-=======
-    public static List<GeneInteraction> buildKeggBasedInteractions(String pathwayId) throws Exception {
-        List<String> rawGenes = APICalls.extractGenesFromPathway(pathwayId);
->>>>>>> Stashed changes
 
         // Normalize gene names: keep only the first alias (split by space, comma, slash, or hyphen)
         List<String> genes = rawGenes.stream()
