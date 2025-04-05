@@ -160,9 +160,6 @@ public class APICalls {
         throw new IOException("Failed after retries.");
     }
 
-
-}
-
     public static ArrayList<String> getPathwaysFromID(Integer id) {
         try {
             URL url = new URL("https://rest.kegg.jp/link/pathway/hsa:" + id);
