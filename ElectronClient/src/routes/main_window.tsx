@@ -5,6 +5,8 @@ import $   from 'jquery';
 
 export default function MainWindow() {
     const [data, setData] = useState({name:"" ,summary:"",description:"",diseases:[""]});
+
+    const [drugs, setDrugs] = useState([{}])
     if(data.name=="")
       setData(JSON.parse('{"summary":"This gene encodes a tumor suppressor protein containing transcriptional activation, DNA binding, and oligomerization domains","description":"tumor protein p53","diseases":["BONE MARROW FAILURE SYNDROME 5; BMFS5","BASAL CELL CARCINOMA, SUSCEPTIBILITY TO, 7; BCC7","NASOPHARYNGEAL CARCINOMA","PAPILLOMA OF CHOROID PLEXUS; CPP","PANCREATIC CANCER","OSTEOGENIC SARCOMA","ADRENOCORTICAL CARCINOMA, HEREDITARY; ADCC","TUMOR PROTEIN p53; TP53","LI-FRAUMENI SYNDROME; LFS","GLIOMA SUSCEPTIBILITY 1; GLM1"],"name":"TP53"}'))
     // console.log('test' + data.diseases)
@@ -21,9 +23,14 @@ export default function MainWindow() {
     
     return (
       <>
-        <Box sx={{margin:"10px",backgroundColor:colors.grey[300], justifyContent:"left", display:"flex", flexDirection:"row", alignContent:"center"}}>
-            <TextField label="Gene" variant="filled" id='searchTextField' />
-            <Button variant="outlined" sx={{margin:"5px", border:"1px solid black"}}
+        <Box sx={{margin:"10px",backgroundColor:colors.grey[300], justifyContent:"left", display:"flex", flexDirection:"row", alignContent:"center", borderRadius:"20px"}}>
+            <TextField label="Gene" variant="filled" id='searchTextField' sx={{marginLeft:"30px", backgroundColor:"transparent", borderRadius:"20px"}}
+            onKeyUp={(event) => {
+              if (event.keyCode === 13){
+                (document.getElementById("button")).click()
+              }
+            }}  />
+            <Button id="button" variant="outlined" sx={{margin:"5px", border:"1px solid black"}}
               onClick={() => {
               $.ajax({
                 url: "http://localhost:1080",
@@ -64,10 +71,12 @@ export default function MainWindow() {
               </List>
             </div>
           </Box>
-          <Box sx={{flexGrow:2, margin:"25px"}}>
+          <Box sx={{flexGrow:2, margin:"25px", backgroundColor:colors.grey[300], borderRadius:"25px", padding:"20px"}}>
+            <Typography>
               test
+            </Typography>
           </Box>
-          <Box sx={{flexGrow:1, margin:"25px"}}>
+          <Box sx={{flexGrow:1, margin:"25px", backgroundColor:colors.grey[300], borderRadius:"25px", padding:"20px"}}>
               test
           </Box>
         </Box>
