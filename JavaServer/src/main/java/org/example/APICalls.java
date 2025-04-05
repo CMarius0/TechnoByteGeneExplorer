@@ -2,12 +2,21 @@ package org.example;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.List;
 
@@ -86,5 +95,33 @@ public class APICalls {
             return null;
         }
     }
-}
 
+    public static ArrayList<String> getPathwaysFromID(Integer id) {
+        try {
+            URL url = new URL("https://rest.kegg.jp/link/pathway/hsa:" + id);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Content-Language", "en-US");
+            conn.setUseCaches(false);
+            conn.setDoOutput(true);
+            conn.connect();
+
+            InputStream is = conn.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            ArrayList<String> response = new ArrayList<>();
+            String inputLine;
+            int n = 100;
+            while ((inputLine = reader.readLine()) != null & n!=0)
+            {
+                response.add(inputLine.split("\\s+")[1].replaceAll("path:",""));
+                n--;
+            }
+
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+}
