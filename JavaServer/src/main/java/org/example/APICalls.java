@@ -83,7 +83,6 @@ public class APICalls {
 
             Set<String> keysToKeep = Set.of("name", "summary", "chromosome", "otherdesignations", "otheraliases");
 
-            // Collect keys to REMOVE
             Set<String> keysToRemove = new HashSet<>();
             for (String key : test.keySet()) {
                 if (!keysToKeep.contains(key)) {
@@ -91,7 +90,6 @@ public class APICalls {
                 }
             }
 
-            // Remove unwanted keys
             for (String key : keysToRemove) {
                 test.remove(key);
             }
@@ -106,7 +104,6 @@ public class APICalls {
     public static List<String> getDiseasesByGeneId(String geneId) throws Exception {
         List<String> diseaseNames = new ArrayList<>();
 
-        // Step 1: Get linked OMIM IDs from NCBI
         String elinkUrl = BASE_URL + "elink.fcgi?dbfrom=gene&id=" + geneId + "&db=omim" + TOOL_PARAM + EMAIL_PARAM + "&retmode=json";
         JSONObject elinkResponse = getJsonFromUrl(elinkUrl);
         JSONArray linkSets = elinkResponse.getJSONArray("linksets");
@@ -120,13 +117,11 @@ public class APICalls {
 
         if (linkIds.isEmpty()) return diseaseNames;
 
-        // Step 2: Batch OMIM IDs (max 20 at a time is usually safe)
         List<String> omimIds = new ArrayList<>();
         for (int i = 0; i < linkIds.length(); i++) {
             omimIds.add(linkIds.getString(i));
         }
 
-        // Send a single request for all OMIM IDs
         String joinedIds = String.join(",", omimIds);
         String esummaryUrl = BASE_URL + "esummary.fcgi?db=omim&id=" + joinedIds + TOOL_PARAM + EMAIL_PARAM + "&retmode=json";
         JSONObject omimSummary = getJsonFromUrl(esummaryUrl);
@@ -146,7 +141,6 @@ public class APICalls {
         APICalls api = new APICalls();
         HttpURLConnection con = api.getConnection(urlStr);
 
-        // Handle 429 (rate limit)
         int retries = 3;
         while (retries-- > 0) {
             try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
@@ -157,7 +151,7 @@ public class APICalls {
             } catch (IOException e) {
                 if (con.getResponseCode() == 429) {
                     System.out.println("Rate limit hit, retrying...");
-                    Thread.sleep(1000); // wait 1 sec before retry
+                    Thread.sleep(1000);
                 } else {
                     throw e;
                 }

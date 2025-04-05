@@ -16,7 +16,7 @@ public class Server extends NanoHTTPD {
     public Response serve(IHTTPSession session) {
         String key = session.getParms().get("key");
         Response res = newFixedLengthResponse(APICalls.getGeneInfoFromID(APICalls.getGeneIdFromSymbol("TP53")).toString());
-        res.addHeader("Access-Control-Allow-Origin", "*"); // 💥 This is what fixes it!
+        res.addHeader("Access-Control-Allow-Origin", "*");
         res.addHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         res.addHeader("Access-Control-Allow-Headers", "Content-Type");
 
