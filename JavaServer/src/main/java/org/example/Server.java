@@ -19,7 +19,14 @@ public class Server extends NanoHTTPD {
         Response res;
         switch (type) {
             case "GetGene":
-                res = newFixedLengthResponse(APICalls.getGeneInfoFromID(APICalls.getGeneIdFromSymbol(session.getParms().get("gene"))).toString());
+                var x = APICalls.getGeneInfoFromID(APICalls.getGeneIdFromSymbol(session.getParms().get("gene")));
+                if (x==null){
+                    JSONObject obj = new JSONObject();
+                    obj.put("Error", "No matching Gene Name");
+                    res = newFixedLengthResponse(obj.toString());
+                    break;
+                }
+                res = newFixedLengthResponse(x.toString());
                 break;
             default:
                 JSONObject obj = new JSONObject();
@@ -33,7 +40,7 @@ public class Server extends NanoHTTPD {
         return res;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         try {
             new Server();
         }

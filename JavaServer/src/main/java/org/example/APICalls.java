@@ -34,28 +34,6 @@ public class APICalls {
         return connection;
     }
 
-    public static ArrayList<String> request(String parameter) {
-        try {
-            APICalls api = new APICalls();
-            HttpURLConnection conn = api.getConnection("https://rest.kegg.jp/" + parameter);
-
-            InputStream is = conn.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            ArrayList<String> response = new ArrayList<>();
-            String inputLine;
-            int n = 1000;
-            while ((inputLine = reader.readLine()) != null && n != 0) {
-                response.add(inputLine);
-                n--;
-            }
-            reader.close();
-            return response;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return null;
-        }
-    }
-
     public static Integer getGeneIdFromSymbol(String symbol) {
         try {
             APICalls api = new APICalls();
@@ -81,9 +59,10 @@ public class APICalls {
             JSONObject jsonObject = new JSONObject(reader.readLine());
             JSONObject test = jsonObject.getJSONObject("result").getJSONObject(id.toString());
 
-            Set<String> keysToKeep = Set.of("name", "summary", "chromosome", "otherdesignations", "otheraliases");
+            Set<String> keysToKeep = Set.of("name", "summary","description");
 
             Set<String> keysToRemove = new HashSet<>();
+
             for (String key : test.keySet()) {
                 if (!keysToKeep.contains(key)) {
                     keysToRemove.add(key);
@@ -93,7 +72,17 @@ public class APICalls {
             for (String key : keysToRemove) {
                 test.remove(key);
             }
-
+            test.put("summary",test.getString("summary").split("\\.")[0]);
+            int n = 10;
+            var lista = getDiseasesByGeneId(id.toString());
+            JSONArray array = new JSONArray();
+            for (var x: lista){
+                array.put(x);
+                n--;
+                if (n==0)
+                    break;
+            }
+            test.put("diseases",array);
             return test;
         } catch (Exception e) {
             System.out.println(e.getMessage());
