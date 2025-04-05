@@ -2,39 +2,36 @@ package org.example;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.List;
 
 public class APICalls {
     private static final String BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
     private static final String TOOL_PARAM = "&tool=GeneExplorer";
     private static final String EMAIL_PARAM = "&email=raulcostea434@yahoo.com";
 
+
+    private HttpURLConnection getConnection(String link) throws IOException {
+        URL url = new URL(link);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Content-Language", "en-US");
+        connection.setUseCaches(false);
+        connection.setDoOutput(true);
+        connection.connect();
+        return connection;
+    }
+
     public static ArrayList<String> request(String parameter) {
         try {
-            URL url = new URL("https://rest.kegg.jp/" + parameter);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Content-Language", "en-US");
-            conn.setUseCaches(false);
-            conn.setDoOutput(true);
-            conn.connect();
+            APICalls api = new APICalls();
+            HttpURLConnection conn = api.getConnection("https://rest.kegg.jp/" + parameter);
 
             InputStream is = conn.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -48,42 +45,30 @@ public class APICalls {
             reader.close();
             return response;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return null;
         }
     }
 
     public static Integer getGeneIdFromSymbol(String symbol) {
         try {
-            URL url = new URL("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=" + symbol + "[gene]+AND+Homo+sapiens[orgn]&retmode=json");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Content-Language", "en-US");
-            conn.setUseCaches(false);
-            conn.setDoOutput(true);
-            conn.connect();
+            APICalls api = new APICalls();
+            HttpURLConnection conn = api.getConnection("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=" + symbol + "[gene]+AND+Homo+sapiens[orgn]&retmode=json");
 
             InputStream is = conn.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             JSONObject jsonObject = new JSONObject(reader.readLine());
             return Integer.parseInt(jsonObject.getJSONObject("esearchresult").getJSONArray("idlist").get(0).toString());
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return null;
         }
     }
 
     public static JSONObject getGeneInfoFromID(Integer id) {
         try {
-            URL url = new URL("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id=" + id + "&retmode=json");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Content-Language", "en-US");
-            conn.setUseCaches(false);
-            conn.setDoOutput(true);
-            conn.connect();
+            APICalls api = new APICalls();
+            HttpURLConnection conn = api.getConnection("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id=" + id + "&retmode=json");
 
             InputStream is = conn.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -107,7 +92,7 @@ public class APICalls {
 
             return test;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return null;
         }
     }
@@ -120,14 +105,14 @@ public class APICalls {
         JSONObject elinkResponse = getJsonFromUrl(elinkUrl);
         JSONArray linkSets = elinkResponse.getJSONArray("linksets");
 
-        if (linkSets.length() == 0) return diseaseNames;
+        if (linkSets.isEmpty()) return diseaseNames;
 
         JSONArray linkIds = linkSets.getJSONObject(0)
                 .getJSONArray("linksetdbs")
                 .getJSONObject(0)
                 .getJSONArray("links");
 
-        if (linkIds.length() == 0) return diseaseNames;
+        if (linkIds.isEmpty()) return diseaseNames;
 
         // Step 2: Batch OMIM IDs (max 20 at a time is usually safe)
         List<String> omimIds = new ArrayList<>();
@@ -152,9 +137,8 @@ public class APICalls {
     }
 
     private static JSONObject getJsonFromUrl(String urlStr) throws Exception {
-        URL url = new URL(urlStr);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
+        APICalls api = new APICalls();
+        HttpURLConnection con = api.getConnection(urlStr);
 
         // Handle 429 (rate limit)
         int retries = 3;
@@ -178,14 +162,8 @@ public class APICalls {
 
     public static ArrayList<String> getPathwaysFromID(Integer id) {
         try {
-            URL url = new URL("https://rest.kegg.jp/link/pathway/hsa:" + id);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Content-Language", "en-US");
-            conn.setUseCaches(false);
-            conn.setDoOutput(true);
-            conn.connect();
+            APICalls api = new APICalls();
+            HttpURLConnection conn = api.getConnection("https://rest.kegg.jp/link/pathway/hsa:" + id);
 
             InputStream is = conn.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -200,21 +178,15 @@ public class APICalls {
 
             return response;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return null;
         }
     }
 
     public static ArrayList<String> getDrugs() {
         try {
-            URL url = new URL("https://rest.kegg.jp/list/drug");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Content-Language", "en-US");
-            conn.setUseCaches(false);
-            conn.setDoOutput(true);
-            conn.connect();
+            APICalls api = new APICalls();
+            HttpURLConnection conn = api.getConnection("https://rest.kegg.jp/list/drug");
 
             InputStream is = conn.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -229,7 +201,7 @@ public class APICalls {
 
             return response;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return null;
         }
     }

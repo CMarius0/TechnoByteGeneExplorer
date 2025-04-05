@@ -1,17 +1,8 @@
 package org.example;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 import fi.iki.elonen.NanoHTTPD;
-import org.json.JSONObject;
 
 import java.io.*;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Server extends NanoHTTPD {
 
