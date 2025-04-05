@@ -2,6 +2,12 @@ package org.example;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -209,10 +215,8 @@ public class APICalls {
     public static List<String> extractGenesFromPathway(String pathwayId) throws Exception {
         List<String> geneSymbols = new ArrayList<>();
 
-        String urlStr = "https://rest.kegg.jp/get/" + pathwayId + "/kgml";
-        URL url = new URL(urlStr);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
+        APICalls api = new APICalls();
+        HttpURLConnection con = api.getConnection("https://rest.kegg.jp/get/" + pathwayId + "/kgml");
 
         InputStream stream = con.getInputStream();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -237,10 +241,8 @@ public class APICalls {
     }
 
     public static String extractNtseqFromKeggGene(String geneKeggId) throws Exception {
-        String urlStr = "https://rest.kegg.jp/get/" + geneKeggId;
-        URL url = new URL(urlStr);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
+        APICalls api = new APICalls();
+        HttpURLConnection con = api.getConnection("https://rest.kegg.jp/get/\" + geneKeggId");
 
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String line;
@@ -258,7 +260,7 @@ public class APICalls {
             }
         }
         in.close();
-        return seq.length() > 0 ? seq.toString() : null;
+        return !seq.isEmpty() ? seq.toString() : null;
     }
 
 }
