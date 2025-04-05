@@ -31,6 +31,6 @@ public class Main {
             diseases.forEach(System.out::println);
         } catch (Exception e) {
             e.printStackTrace();
-        } */
+        }*/
     }
 }
