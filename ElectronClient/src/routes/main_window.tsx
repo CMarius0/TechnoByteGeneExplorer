@@ -1,4 +1,4 @@
-import { AppBar, Box, Button, colors, List, ListItem, ListItemText, TextField, Typography,  } from "@mui/material";
+import { AppBar, Box, Button, capitalize, colors, List, ListItem, ListItemText, TextField, Typography,  } from "@mui/material";
 import { ReactNode, useState } from "react";
 import $   from 'jquery';
 
@@ -22,8 +22,8 @@ export default function MainWindow() {
     return (
       <>
         <Box sx={{margin:"10px",backgroundColor:colors.grey[300], justifyContent:"left", display:"flex", flexDirection:"row", alignContent:"center"}}>
-            <TextField label="Gene" variant="outlined" id='searchTextField' />
-            <Button variant="outlined"
+            <TextField label="Gene" variant="filled" id='searchTextField' />
+            <Button variant="outlined" sx={{margin:"5px", border:"1px solid black"}}
               onClick={() => {
               $.ajax({
                 url: "http://localhost:1080",
@@ -50,13 +50,13 @@ export default function MainWindow() {
                 {data.name}
               </Typography>
               
-              <Typography variant="h6">
+              <Typography variant="h6" sx={{textTransform:"capitalize"}}>
                 {data.description}
               </Typography>
-              <Typography variant="body2" sx={{marginTop:"10px", marginBottom:"10px"}}>
+              <Typography variant="body1" sx={{marginTop:"10px", marginBottom:"15px", fontStyle:"italic"}}>
                 {data.summary}
               </Typography> 
-              <Typography variant="h6" sx={{fontWeight:"bold"}}>
+              <Typography variant="h6" sx={{fontWeight:"bold", textDecoration:"underline", textDecorationThickness:"2px"}}>
                 Diseases:
               </Typography>
               <List>
