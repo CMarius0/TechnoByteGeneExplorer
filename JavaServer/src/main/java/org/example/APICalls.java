@@ -89,6 +89,22 @@ public class APICalls {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             JSONObject jsonObject = new JSONObject(reader.readLine());
             JSONObject test = jsonObject.getJSONObject("result").getJSONObject(id.toString());
+
+            Set<String> keysToKeep = Set.of("name", "summary", "chromosome", "otherdesignations", "otheraliases");
+
+            // Collect keys to REMOVE
+            Set<String> keysToRemove = new HashSet<>();
+            for (String key : test.keySet()) {
+                if (!keysToKeep.contains(key)) {
+                    keysToRemove.add(key);
+                }
+            }
+
+            // Remove unwanted keys
+            for (String key : keysToRemove) {
+                test.remove(key);
+            }
+
             return test;
         } catch (Exception e) {
             e.printStackTrace();
