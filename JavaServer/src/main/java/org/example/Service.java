@@ -37,28 +37,31 @@ public class Service {
     public List<JSONObject> getAssociatedDrugs(ArrayList<String> geneNames) {
         ExecutorService executor = Executors.newFixedThreadPool(10);
 
-        List<CompletableFuture<JSONObject>> futures = geneNames.stream()
+        List<CompletableFuture<List<JSONObject>>> futures = geneNames.stream()
                 .map(geneName -> CompletableFuture.supplyAsync(() -> {
+                    List<JSONObject> drugObjects = new ArrayList<>();
                     try {
                         Integer geneId = ncbiAPICaller.getGeneIdFromSymbol(geneName);
                         List<String> drugs = keggAPICaller.extractDrugTarget(geneId.toString());
 
                         if (drugs != null) {
-                            JSONObject obj = new JSONObject();
-                            JSONArray array = new JSONArray(drugs);
-                            obj.put("Gene", geneName);
-                            obj.put("Drugs", array);
-                            return obj;
+                            for (String drug : drugs) {
+                                JSONObject drugObj = new JSONObject();
+                                drugObj.put("name", drug);
+                                drugObj.put("Gene", geneName);
+                                drugObjects.add(drugObj);
+                            }
                         }
                     } catch (Exception _) {
+                        // You can log the error if needed
                     }
-                    return null;
+                    return drugObjects;
                 }, executor))
                 .toList();
 
         List<JSONObject> result = futures.stream()
                 .map(CompletableFuture::join)
-                .filter(Objects::nonNull)
+                .flatMap(List::stream)
                 .collect(Collectors.toList());
 
         executor.shutdown();
