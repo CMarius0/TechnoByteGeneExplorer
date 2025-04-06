@@ -26,6 +26,9 @@ public class Server extends NanoHTTPD {
             case "GetDrugs":
                 res = newFixedLengthResponse(service.getDrugsForSimilarGenes(session.getParms().get("gene")).toString());
                 break;
+            case "GetInteractions":
+                res = newFixedLengthResponse(service.getInteractions(session.getParms().get("gene")).toString());
+                break;
             default:
                 JSONObject obj = new JSONObject();
                 obj.put("Error", "Error");

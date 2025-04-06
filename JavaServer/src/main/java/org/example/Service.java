@@ -86,8 +86,13 @@ public class Service {
             List<JSONObject> drugs = getAssociatedDrugs(names);
             for(JSONObject obj : drugs){
                 int score = 0;
-                if(names.contains(obj.getString("Gene")))
-                    score+=10;
+                List<GeneInteraction> interactions = geneEmbeddingAPI.buildKeggBasedInteractions(pathwayIDs.getFirst(),geneName);
+                geneEmbeddingAPI.loadInteractions(interactions,20);
+                for (var name: names){
+                    if(geneEmbeddingAPI.similarity(name,obj.getString("Gene"))>0.7)
+                        score+=10;
+                }
+                names.add(obj.getString("Gene"));
                 ArrayList<String> pathways = keggAPICaller.getPathwaysFromID(ncbiAPICaller.getGeneIdFromSymbol(obj.getString("Gene")));
                 for (var pathway: pathwayIDs)
                     if(pathways.contains(pathway)) {

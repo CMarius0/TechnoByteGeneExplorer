@@ -23,7 +23,7 @@ public class NcbiAPICaller extends AbstractAPICaller{
     }
 
     public Integer getGeneIdFromSymbol(String symbol) throws IOException {
-        HttpURLConnection conn = getConnection( "esearch.fcgi?db=gene&term=" + symbol + "[gene]+AND+Homo+sapiens[orgn]&retmode=json");
+        HttpURLConnection conn = getConnection( "esearch.fcgi?db=gene&term=" + symbol + "[gene]+AND+Homo+sapiens[orgn]&retmode=json&api_key=f48faf88b7b516ba12be179267a8130fdd08");
         InputStream is = conn.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         JSONObject jsonObject = new JSONObject(reader.readLine());
@@ -31,7 +31,7 @@ public class NcbiAPICaller extends AbstractAPICaller{
     }
 
     public JSONObject getGeneInfoFromID(Integer id) throws Exception {
-        HttpURLConnection conn = getConnection("esummary.fcgi?db=gene&id=" + id + "&retmode=json");
+        HttpURLConnection conn = getConnection("esummary.fcgi?db=gene&id=" + id + "&retmode=json&api_key=f48faf88b7b516ba12be179267a8130fdd08");
 
         InputStream is = conn.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -68,7 +68,7 @@ public class NcbiAPICaller extends AbstractAPICaller{
     public List<String> getDiseasesByGeneId(String geneId) throws Exception {
         List<String> diseaseNames = new ArrayList<>();
 
-        JSONObject elinkResponse = getJsonFromUrl("elink.fcgi?dbfrom=gene&id=" + geneId + "&db=omim&tool=GeneExplorer&email=raulcostea434@yahoo.com&retmode=json");
+        JSONObject elinkResponse = getJsonFromUrl("elink.fcgi?dbfrom=gene&id=" + geneId + "&db=omim&tool=GeneExplorer&email=raulcostea434@yahoo.com&retmode=json&api_key=f48faf88b7b516ba12be179267a8130fdd08");
         JSONArray linkSets = elinkResponse.getJSONArray("linksets");
 
         if (linkSets.isEmpty()) return diseaseNames;
@@ -86,7 +86,7 @@ public class NcbiAPICaller extends AbstractAPICaller{
         }
 
         String joinedIds = String.join(",", omimIds);
-        String esummaryUrl = "esummary.fcgi?db=omim&id=" + joinedIds + TOOL_PARAM + EMAIL_PARAM + "&retmode=json";
+        String esummaryUrl = "esummary.fcgi?db=omim&id=" + joinedIds + TOOL_PARAM + EMAIL_PARAM + "&retmode=json&api_key=f48faf88b7b516ba12be179267a8130fdd08";
         JSONObject omimSummary = getJsonFromUrl(esummaryUrl);
         JSONObject result = omimSummary.getJSONObject("result");
 
@@ -101,7 +101,7 @@ public class NcbiAPICaller extends AbstractAPICaller{
     }
 
     private JSONObject getJsonFromUrl(String urlStr) throws Exception {
-        HttpURLConnection con = getConnection(urlStr);
+        HttpURLConnection con = getConnection(urlStr+"&api_key=f48faf88b7b516ba12be179267a8130fdd08");
 
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         StringBuilder content = new StringBuilder();
