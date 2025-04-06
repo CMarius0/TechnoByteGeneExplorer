@@ -6,7 +6,8 @@ import $   from 'jquery';
 export default function MainWindow() {
     const [data, setData] = useState({name:"" ,summary:"",description:"",diseases:[""]});
 
-    const [drugs, setDrugs] = useState<{ gene: string, indication: string, score: number }[]>([]);
+    const [drugs, setDrugs] = useState<{ gene: "", indication: "", score: number }[]>([]);
+    
     if(data.name=="")
       setData(JSON.parse('{"summary":"This gene encodes a tumor suppressor protein containing transcriptional activation, DNA binding, and oligomerization domains","description":"tumor protein p53","diseases":["BONE MARROW FAILURE SYNDROME 5; BMFS5","BASAL CELL CARCINOMA, SUSCEPTIBILITY TO, 7; BCC7","NASOPHARYNGEAL CARCINOMA","PAPILLOMA OF CHOROID PLEXUS; CPP","PANCREATIC CANCER","OSTEOGENIC SARCOMA","ADRENOCORTICAL CARCINOMA, HEREDITARY; ADCC","TUMOR PROTEIN p53; TP53","LI-FRAUMENI SYNDROME; LFS","GLIOMA SUSCEPTIBILITY 1; GLM1"],"name":"TP53"}'))
     // console.log('test' + data.diseases)
@@ -45,21 +46,6 @@ export default function MainWindow() {
                   setData(gene);
                 }
                 
-              });
-              $.ajax({
-                url: "http://localhost:1080",
-                data: {
-                  type: "GetDrugs",
-                  gene: (document.getElementById("searchTextField") as HTMLInputElement).value
-                },
-                success: function(result) {
-                  const parsed = JSON.parse(result);
-                  if ('error' in parsed) {
-                    alert("Error at GetDrugs");
-                  } else {
-                    setDrugs(parsed); // Now parsed = [{ gene: "", indication: "", score: 0.0 }, ...]
-                  }
-                }
               });              
             }}><Typography variant="body2">
                 Explore
@@ -97,15 +83,15 @@ export default function MainWindow() {
     Drug Associations
   </Typography>
   <List>
-    {drugs.map((entry, index) => (
+    {drugs.map((drugs, index) => (
       <ListItem key={index} sx={{flexDirection: "column", alignItems: "flex-start", mb: 2}}>
-        <Typography variant="subtitle1" sx={{fontWeight: "bold"}}>Gene: {entry.gene}</Typography>
-        <Typography variant="body2">Indication: {entry.indication}</Typography>
-        <Typography variant="body2">Score: {entry.score}</Typography>
+        <Typography variant="subtitle1" sx={{fontWeight: "bold"}}>Gene: {drugs.gene}</Typography>
+        <Typography variant="body2">Indication: {drugs.indication}</Typography>
+        <Typography variant="body2">Score: {drugs.score}</Typography>
       </ListItem>
     ))}
   </List>
-</Box>
+ </Box>
 
           </Box>
       </>
