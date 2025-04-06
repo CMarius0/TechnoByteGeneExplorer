@@ -5,11 +5,13 @@ import org.example.GeneInteraction;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class Service {
     NcbiAPICaller ncbiAPICaller = new NcbiAPICaller("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/");
@@ -31,45 +33,66 @@ public class Service {
     }
 
     public List<JSONObject> getAssociatedDrugs(ArrayList<String> geneNames) {
-        try {
-            ArrayList<JSONObject> gene = new ArrayList<>();
-            for(String geneName : geneNames){
-                JSONObject obj = new JSONObject();
-                JSONArray array = new JSONArray();
-                try {
-                    List<String> lista = keggAPICaller.extractDrugTarget(geneName.replaceAll("hsa0", ""));
-                    if (lista!=null) {
-                        for (var x : lista)
-                            array.put(x);
-                        obj.put("Drugs", array);
-                        gene.add(obj);
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+
+        List<CompletableFuture<JSONObject>> futures = geneNames.stream()
+                .map(geneName -> CompletableFuture.supplyAsync(() -> {
+                    try {
+                        Integer geneId = ncbiAPICaller.getGeneIdFromSymbol(geneName);
+                        List<String> drugs = keggAPICaller.extractDrugTarget(geneId.toString());
+
+                        if (drugs != null) {
+                            JSONObject obj = new JSONObject();
+                            JSONArray array = new JSONArray(drugs);
+                            obj.put("Gene", geneName);
+                            obj.put("Drugs", array);
+                            return obj;
+                        }
+                    } catch (Exception _) {
                     }
-                }
-                catch (FileNotFoundException _){}
-            }
-            return gene;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+                    return null;
+                }, executor))
+                .toList();
+
+        List<JSONObject> result = futures.stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        executor.shutdown();
+        return result;
     }
 
     public JSONArray getDrugsForSimilarGenes(String geneName) {
         try {
-            ArrayList<String> names = new ArrayList<>();;
+            ArrayList<String> names = new ArrayList<>();
             ArrayList<String> pathwayIDs = keggAPICaller.getPathwaysFromID(ncbiAPICaller.getGeneIdFromSymbol(geneName));
+            int n = 5;
             for(var pathway : pathwayIDs){
-                List<GeneInteraction> interactions = geneEmbeddingAPI.buildKeggBasedInteractions(pathway);
-                geneEmbeddingAPI.loadInteractions(interactions,10);
-                List<String> genes = keggAPICaller.extractGenesFromPathway(pathway);
+                if (n==0)
+                    break;
+                List<GeneInteraction> interactions = geneEmbeddingAPI.buildKeggBasedInteractions(pathway,geneName);
+                geneEmbeddingAPI.loadInteractions(interactions,20);
+                List<String> genes = keggAPICaller.extractGenesFromPathway(pathway,geneName);
                 for (var gene : genes) {
-                    JSONObject obj = new JSONObject(ncbiAPICaller.getGeneInfoFromID(Integer.parseInt(gene.replace("hsa0",""))).toString());
-                    if(geneEmbeddingAPI.similarity(geneName,obj.getString("name")) > 0.5)
+                    if(geneEmbeddingAPI.similarity(geneName,gene) > 0.5 && !names.contains(gene))
                         names.add(gene);
                 }
+                n--;
             }
             JSONArray array = new JSONArray();
             List<JSONObject> drugs = getAssociatedDrugs(names);
             for(JSONObject obj : drugs){
+                int score = 0;
+                if(names.contains(obj.getString("Gene")))
+                    score+=10;
+                ArrayList<String> pathways = keggAPICaller.getPathwaysFromID(ncbiAPICaller.getGeneIdFromSymbol(obj.getString("Gene")));
+                for (var pathway: pathwayIDs)
+                    if(pathways.contains(pathway)) {
+                        score += 5;
+                        break;
+                    }
+                obj.put("score", score);
                 array.put(obj);
             }
             return array;

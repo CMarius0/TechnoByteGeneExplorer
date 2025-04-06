@@ -1,5 +1,7 @@
 package org.example.APICallers;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -7,10 +9,13 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class KeggAPICaller extends AbstractAPICaller{
@@ -61,7 +66,7 @@ public class KeggAPICaller extends AbstractAPICaller{
         }
     }
 
-    public List<String> extractGenesFromPathway(String pathwayId) throws Exception {
+    public List<String> extractGenesFromPathway(String pathwayId,String mainGene) throws Exception {
         List<String> geneSymbols = new ArrayList<>();
 
         HttpURLConnection con = getConnection("get/" + pathwayId + "/kgml");
@@ -71,9 +76,11 @@ public class KeggAPICaller extends AbstractAPICaller{
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(stream);
         doc.getDocumentElement().normalize();
-
         NodeList entries = doc.getElementsByTagName("entry");
+        int n=200;
         for (int i = 0; i < entries.getLength(); i++) {
+            if(n<=0)
+                break;
             Element entry = (Element) entries.item(i);
             if (!"gene".equals(entry.getAttribute("type"))) continue;
 
@@ -81,10 +88,17 @@ public class KeggAPICaller extends AbstractAPICaller{
             if (graphicsList.getLength() > 0) {
                 Element graphics = (Element) graphicsList.item(0);
                 String geneName = graphics.getAttribute("name");
-                if (!geneName.isEmpty()) geneSymbols.add(geneName);
+                if (!geneName.isEmpty()) {
+                    var genes = geneName.replaceAll("\\.","").split(",");
+                    for(var gene : genes){
+                        n--;
+                        geneSymbols.add(gene.strip());
+                    }
+                }
             }
         }
-
+        if (!geneSymbols.contains(mainGene))
+            geneSymbols.add(mainGene);
         return geneSymbols;
     }
 
@@ -128,5 +142,32 @@ public class KeggAPICaller extends AbstractAPICaller{
         }
         in.close();
         return !drugs.isEmpty() ? drugs : null;
+    }
+
+    public JSONObject getDrugInfo(String drugId) throws IOException {
+        HttpURLConnection con = getConnection("get/" + drugId);
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String line;
+        boolean comment = false;
+        boolean target = false;
+        JSONObject json = new JSONObject();
+
+        while ((line = in.readLine()) != null) {
+            if (line.startsWith("TARGET")) {
+                target = true;
+                comment = false;
+            }
+            if (line.startsWith("COMMENT")) {
+                comment = true;
+            }
+            if (target) {
+                if (line.trim().startsWith("PATHWAY")) break;
+                json.put("gene", line.trim().replaceAll("TARGET","").strip().split(" ")[0]);
+            }
+            if (comment) {
+                json.put("indication", line.trim().replaceAll("COMMENT",""));
+            }
+        }
+        return json;
     }
 }

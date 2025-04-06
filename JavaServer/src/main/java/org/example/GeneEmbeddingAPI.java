@@ -41,14 +41,15 @@ public class GeneEmbeddingAPI {
     }
 
     // --- Build GeneInteractions from KEGG Pathway using APICalls ---
-    public List<GeneInteraction> buildKeggBasedInteractions(String pathwayId) throws Exception {
-        List<String> rawGenes = geneCaller.extractGenesFromPathway(pathwayId);
+    public List<GeneInteraction> buildKeggBasedInteractions(String pathwayId,String mainGene) throws Exception {
+        List<String> rawGenes = geneCaller.extractGenesFromPathway(pathwayId,mainGene);
 
         // Normalize gene names: keep only the first alias (split by space, comma, slash, or hyphen)
-        List<String> genes = rawGenes.stream()
-                .map(name -> name.split("[ ,/\\-]")[0].toUpperCase()) // use only the first token, in uppercase
-                .distinct()
-                .toList();
+        List<String> genes = new ArrayList<>();
+
+        for (String gene : rawGenes) {
+            genes.add(gene.strip());
+        }
 
         List<GeneInteraction> interactions = new ArrayList<>();
         for (int i = 0; i < genes.size(); i++) {
