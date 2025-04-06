@@ -1,8 +1,7 @@
-package org.example;
+package org.example.GeneAlgorithms;
 
 import org.apache.commons.math3.linear.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 class EmbeddingService {
 

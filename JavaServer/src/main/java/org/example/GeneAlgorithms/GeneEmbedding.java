@@ -1,7 +1,4 @@
-package org.example;
-
-import java.util.*;
-import java.util.stream.Collectors;
+package org.example.GeneAlgorithms;
 
 class GeneEmbedding {
     public String gene;

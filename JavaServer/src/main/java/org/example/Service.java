@@ -2,6 +2,8 @@ package org.example;
 
 import org.example.APICallers.KeggAPICaller;
 import org.example.APICallers.NcbiAPICaller;
+import org.example.GeneAlgorithms.GeneEmbeddingAPI;
+import org.example.GeneAlgorithms.GeneInteraction;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
