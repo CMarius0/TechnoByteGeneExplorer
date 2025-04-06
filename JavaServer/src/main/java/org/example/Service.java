@@ -1,7 +1,7 @@
-package org.example.APICallers;
+package org.example;
 
-import org.example.GeneEmbeddingAPI;
-import org.example.GeneInteraction;
+import org.example.APICallers.KeggAPICaller;
+import org.example.APICallers.NcbiAPICaller;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -96,6 +96,22 @@ public class Service {
                 array.put(obj);
             }
             return array;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public JSONObject getInteractions(String geneName) {
+        try {
+            List<GeneInteraction> interactions = geneEmbeddingAPI.buildKeggBasedInteractions(keggAPICaller.getPathwaysFromID(ncbiAPICaller.getGeneIdFromSymbol(geneName)).getFirst(),geneName);
+            JSONObject listaAdiacenta = new JSONObject();
+            for(var interaction : interactions){
+                JSONObject obj = new JSONObject();
+                obj.put("Target",interaction.targetGene);
+                obj.put("Relation",interaction.relationType);
+                listaAdiacenta.append(interaction.sourceGene,obj);
+            }
+            return listaAdiacenta;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

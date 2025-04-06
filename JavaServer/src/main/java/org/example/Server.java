@@ -1,7 +1,6 @@
 package org.example;
 
 import fi.iki.elonen.NanoHTTPD;
-import org.example.APICallers.Service;
 import org.json.JSONObject;
 
 import java.io.*;
